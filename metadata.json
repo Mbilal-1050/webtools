@@ -1,0 +1,6 @@
+{
+  "name": "Client-Side Web Tools",
+  "description": "Fast, private, 100% browser-based developer, image, text, and calculation tools running entirely client-side without data leaving your device.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

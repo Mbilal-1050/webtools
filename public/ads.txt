@@ -1,0 +1,4 @@
+# ads.txt configuration
+# When your Google AdSense account is approved, add your authorized seller record below:
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+
