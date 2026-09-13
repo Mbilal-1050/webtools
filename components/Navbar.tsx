@@ -103,6 +103,16 @@ export function Navbar() {
                 </div>
               </div>
               <Link
+                href="/blog"
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                  pathname?.startsWith('/blog')
+                    ? 'text-blue-600 dark:text-blue-400 font-semibold'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-900'
+                }`}
+              >
+                Blog
+              </Link>
+              <Link
                 href="/about"
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                   pathname === '/about'
@@ -200,6 +210,13 @@ export function Navbar() {
                   </Link>
                 ))}
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800" />
+                <Link
+                  href="/blog"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900"
+                >
+                  Technical Blog & Guides
+                </Link>
                 <Link
                   href="/about"
                   onClick={() => setMobileMenuOpen(false)}

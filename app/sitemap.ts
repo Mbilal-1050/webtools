@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { TOOLS_DATA } from '@/lib/tools-data';
+import { BLOG_POSTS } from '@/lib/blog-data';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://ais-pre-vrbqudsrlwcp7gonld62ep-473876566031.asia-east1.run.app';
@@ -12,6 +13,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: currentDate,
       changeFrequency: 'daily',
       priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/about`,
@@ -53,5 +60,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: tool.popular ? 0.9 : 0.8,
   }));
 
-  return [...staticRoutes, ...toolRoutes];
+  // Dynamic blog post pages
+  const blogRoutes: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.isoDate),
+    changeFrequency: 'monthly',
+    priority: 0.85,
+  }));
+
+  return [...staticRoutes, ...toolRoutes, ...blogRoutes];
 }

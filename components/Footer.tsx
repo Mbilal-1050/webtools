@@ -124,6 +124,11 @@ export function Footer() {
             </h3>
             <ul className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
               <li>
+                <Link href="/blog" className="hover:text-blue-600 dark:hover:text-blue-400 transition font-medium text-slate-800 dark:text-slate-200">
+                  Blog & Guides
+                </Link>
+              </li>
+              <li>
                 <Link href="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition">
                   About Us
                 </Link>
