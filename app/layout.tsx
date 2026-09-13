@@ -5,6 +5,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { CookieBanner } from '@/components/CookieBanner';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { getSiteUrl } from '@/lib/site';
 
 export const viewport: Viewport = {
   themeColor: '#2563eb',
@@ -13,10 +14,19 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: 'Client-Side Web Tools - Fast, Private & 100% In-Browser',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'Client-Side Web Tools - Fast, Private & 100% In-Browser',
+    template: '%s | Client-Side Web Tools',
+  },
   description: 'Fast, private, 100% browser-based developer, image, text, and calculation tools running entirely client-side without data leaving your device.',
   manifest: '/manifest.webmanifest',
+  alternates: {
+    canonical: '/',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32' },
@@ -33,6 +43,8 @@ export const metadata: Metadata = {
     title: 'Client-Side Web Tools - Fast, Private & 100% In-Browser',
     description: 'Fast, private, 100% browser-based developer, image, text, and calculation tools running entirely client-side without data leaving your device.',
     type: 'website',
+    url: '/',
+    siteName: 'Client-Side Web Tools',
   },
   twitter: {
     card: 'summary_large_image',

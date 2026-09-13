@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { BLOG_POSTS, BlogPost } from '@/lib/blog-data';
 import { AdSlot } from '@/components/AdSlot';
+import { getAbsoluteUrl } from '@/lib/site';
 import {
   BookOpen,
   Clock,
@@ -15,16 +16,22 @@ import {
   Search,
 } from 'lucide-react';
 
+const blogUrl = getAbsoluteUrl('/blog');
+
 export const metadata: Metadata = {
   title: 'Technical Guides & Web Tool Tutorials | Client-Side Web Tools Blog',
   description:
     'In-depth developer guides, compression mechanics, cryptography explanations, and performance tutorials for modern web development.',
+  alternates: {
+    canonical: blogUrl,
+  },
   openGraph: {
     title: 'Technical Guides & Web Tool Tutorials | Client-Side Web Tools Blog',
     description:
       'In-depth developer guides, compression mechanics, cryptography explanations, and performance tutorials for modern web development.',
     type: 'website',
-    url: 'https://ais-pre-vrbqudsrlwcp7gonld62ep-473876566031.asia-east1.run.app/blog',
+    url: blogUrl,
+    siteName: 'Client-Side Web Tools',
   },
   twitter: {
     card: 'summary_large_image',

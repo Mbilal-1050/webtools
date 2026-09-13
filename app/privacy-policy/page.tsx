@@ -2,10 +2,28 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { Shield, Lock, EyeOff, Cookie, ServerOff, FileCheck } from 'lucide-react';
 import { AdSlot } from '@/components/AdSlot';
+import { getAbsoluteUrl } from '@/lib/site';
+
+const privacyUrl = getAbsoluteUrl('/privacy-policy');
 
 export const metadata: Metadata = {
   title: 'Privacy Policy - Client-Side Web Tools',
   description: 'Comprehensive privacy policy outlining our client-side processing architecture, cookie usage, third-party advertising policies, and user data rights.',
+  alternates: {
+    canonical: privacyUrl,
+  },
+  openGraph: {
+    title: 'Privacy Policy - Client-Side Web Tools',
+    description: 'Comprehensive privacy policy outlining our client-side processing architecture, cookie usage, third-party advertising policies, and user data rights.',
+    url: privacyUrl,
+    type: 'website',
+    siteName: 'Client-Side Web Tools',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Privacy Policy - Client-Side Web Tools',
+    description: 'Comprehensive privacy policy outlining our client-side architecture and data protection.',
+  },
 };
 
 export default function PrivacyPolicyPage() {

@@ -2,10 +2,28 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { AlertTriangle, Info, CheckCircle, Shield } from 'lucide-react';
 import { AdSlot } from '@/components/AdSlot';
+import { getAbsoluteUrl } from '@/lib/site';
+
+const disclaimerUrl = getAbsoluteUrl('/disclaimer');
 
 export const metadata: Metadata = {
   title: 'Disclaimer - Client-Side Web Tools',
   description: 'Important disclaimers regarding the accuracy of calculations, conversions, health metrics, and client-side processing.',
+  alternates: {
+    canonical: disclaimerUrl,
+  },
+  openGraph: {
+    title: 'Disclaimer - Client-Side Web Tools',
+    description: 'Important disclaimers regarding the accuracy of calculations, conversions, health metrics, and client-side processing.',
+    url: disclaimerUrl,
+    type: 'website',
+    siteName: 'Client-Side Web Tools',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Disclaimer - Client-Side Web Tools',
+    description: 'Important disclaimers regarding calculations, file processing, and health metrics.',
+  },
 };
 
 export default function DisclaimerPage() {

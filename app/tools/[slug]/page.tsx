@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { TOOLS_DATA, ToolItem } from '@/lib/tools-data';
 import { ToolPageClient } from '@/components/ToolPageClient';
+import { getAbsoluteUrl } from '@/lib/site';
 
 // Import all 26 client-side tools
 import { ImageCompressorTool } from '@/components/tools/ImageCompressorTool';
@@ -64,14 +65,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
+  const toolUrl = getAbsoluteUrl(`/tools/${tool.slug}`);
+
   return {
     title: `${tool.metaTitle} | WebTools`,
     description: tool.metaDescription,
     keywords: tool.keywords,
+    alternates: {
+      canonical: toolUrl,
+    },
     openGraph: {
       title: `${tool.metaTitle} | WebTools`,
       description: tool.metaDescription,
+      url: toolUrl,
       type: 'website',
+      siteName: 'Client-Side Web Tools',
     },
     twitter: {
       card: 'summary_large_image',

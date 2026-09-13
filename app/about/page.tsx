@@ -3,10 +3,28 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Shield, Cpu, Lock, CheckCircle2, Heart, ArrowRight } from 'lucide-react';
 import { AdSlot } from '@/components/AdSlot';
+import { getAbsoluteUrl } from '@/lib/site';
+
+const aboutUrl = getAbsoluteUrl('/about');
 
 export const metadata: Metadata = {
   title: 'About Us - Client-Side Web Tools & Privacy Philosophy',
   description: 'Learn about our mission to provide 100% client-side, browser-native utility tools that respect user privacy with zero server uploads.',
+  alternates: {
+    canonical: aboutUrl,
+  },
+  openGraph: {
+    title: 'About Us - Client-Side Web Tools & Privacy Philosophy',
+    description: 'Learn about our mission to provide 100% client-side, browser-native utility tools that respect user privacy with zero server uploads.',
+    url: aboutUrl,
+    type: 'website',
+    siteName: 'Client-Side Web Tools',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Us - Client-Side Web Tools',
+    description: 'Learn about our mission to provide 100% client-side, browser-native utility tools that respect user privacy.',
+  },
 };
 
 export default function AboutPage() {

@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { TOOLS_DATA } from '@/lib/tools-data';
 import { BLOG_POSTS } from '@/lib/blog-data';
+import { getSiteUrl } from '@/lib/site';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://ais-pre-vrbqudsrlwcp7gonld62ep-473876566031.asia-east1.run.app';
+  const baseUrl = getSiteUrl();
   const currentDate = new Date();
 
   // Static core routes

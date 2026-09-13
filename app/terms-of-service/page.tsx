@@ -2,10 +2,28 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { FileText, Scale, ShieldAlert, Check } from 'lucide-react';
 import { AdSlot } from '@/components/AdSlot';
+import { getAbsoluteUrl } from '@/lib/site';
+
+const termsUrl = getAbsoluteUrl('/terms-of-service');
 
 export const metadata: Metadata = {
   title: 'Terms of Service - Client-Side Web Tools',
   description: 'Terms and conditions governing the use of Client-Side Web Tools free online utilities.',
+  alternates: {
+    canonical: termsUrl,
+  },
+  openGraph: {
+    title: 'Terms of Service - Client-Side Web Tools',
+    description: 'Terms and conditions governing the use of Client-Side Web Tools free online utilities.',
+    url: termsUrl,
+    type: 'website',
+    siteName: 'Client-Side Web Tools',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Terms of Service - Client-Side Web Tools',
+    description: 'Terms and conditions governing the use of Client-Side Web Tools.',
+  },
 };
 
 export default function TermsOfServicePage() {

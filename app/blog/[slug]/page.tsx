@@ -7,6 +7,7 @@ import Markdown from 'react-markdown';
 import { BLOG_POSTS, getBlogPostBySlug, getRelatedBlogPosts } from '@/lib/blog-data';
 import { BlogShareButton } from '@/components/BlogShareButton';
 import { AdSlot } from '@/components/AdSlot';
+import { getAbsoluteUrl } from '@/lib/site';
 import {
   Calendar,
   Clock,
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const url = `https://ais-pre-vrbqudsrlwcp7gonld62ep-473876566031.asia-east1.run.app/blog/${post.slug}`;
+  const url = getAbsoluteUrl(`/blog/${post.slug}`);
 
   return {
     title: `${post.title} | Client-Side Web Tools Blog`,
@@ -82,6 +83,7 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   const relatedPosts = getRelatedBlogPosts(post.slug, 2);
+  const articleUrl = getAbsoluteUrl(`/blog/${post.slug}`);
 
   // Structured Data Schema (JSON-LD) for SEO
   const jsonLd = {
@@ -107,7 +109,7 @@ export default async function BlogPostPage({ params }: Props) {
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://ais-pre-vrbqudsrlwcp7gonld62ep-473876566031.asia-east1.run.app/blog/${post.slug}`,
+      '@id': articleUrl,
     },
     keywords: post.keywords.join(', '),
   };

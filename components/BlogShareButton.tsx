@@ -2,12 +2,14 @@
 
 import React, { useState } from 'react';
 import { Share2, Check, Copy } from 'lucide-react';
+import { DEFAULT_SITE_URL } from '@/lib/site';
 
 export function BlogShareButton({ title, slug }: { title: string; slug: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
-    const url = typeof window !== 'undefined' ? window.location.href : `https://ais-pre-vrbqudsrlwcp7gonld62ep-473876566031.asia-east1.run.app/blog/${slug}`;
+    const siteBase = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL;
+    const url = typeof window !== 'undefined' ? window.location.href : `${siteBase}/blog/${slug}`;
 
     if (navigator.clipboard) {
       try {
