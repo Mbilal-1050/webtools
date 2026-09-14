@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { AdSlot } from './AdSlot';
 import { CATEGORIES, TOOLS_DATA } from '@/lib/tools-data';
-import { Wrench, Shield, Lock, Cpu, Globe, Heart } from 'lucide-react';
+import { Wrench } from 'lucide-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -15,51 +15,8 @@ export function Footer() {
         {/* Pre-footer AdSlot */}
         <AdSlot position="footer" />
 
-        {/* Value Proposition Row */}
-        <div className="my-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 border-y border-slate-200/80 dark:border-slate-800/80 py-8">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
-              <Lock className="h-5 w-5" />
-            </div>
-            <div>
-              <h4 className="text-xs font-semibold text-slate-900 dark:text-white">100% Private</h4>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Files and inputs never leave your browser.</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
-              <Cpu className="h-5 w-5" />
-            </div>
-            <div>
-              <h4 className="text-xs font-semibold text-slate-900 dark:text-white">Client-Side Speed</h4>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Hardware accelerated by Canvas & Web Crypto.</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
-              <Globe className="h-5 w-5" />
-            </div>
-            <div>
-              <h4 className="text-xs font-semibold text-slate-900 dark:text-white">Zero Signup & Free</h4>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">No account required, no usage limits.</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
-              <Shield className="h-5 w-5" />
-            </div>
-            <div>
-              <h4 className="text-xs font-semibold text-slate-900 dark:text-white">PWA & Offline Ready</h4>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Install to your device and use without internet.</p>
-            </div>
-          </div>
-        </div>
-
         {/* Main Footer Links */}
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
+        <div className="mt-10 grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
           {/* Brand Info */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2.5">

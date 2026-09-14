@@ -7,7 +7,6 @@ import {
   Search,
   Sparkles,
   ShieldCheck,
-  Zap,
   ArrowRight,
   Lock,
   Cpu,
@@ -27,6 +26,8 @@ import {
 } from 'lucide-react';
 import { TOOLS_DATA, ToolCategory, ToolItem } from '@/lib/tools-data';
 import { AdSlot } from '@/components/AdSlot';
+import { HeroTypewriter } from '@/components/HeroTypewriter';
+import { TrustBadges } from '@/components/TrustBadges';
 
 interface CategoryConfig {
   id: ToolCategory;
@@ -273,9 +274,7 @@ export default function HomePage() {
             className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15]"
           >
             High-Speed Web Tools.{' '}
-            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 dark:from-blue-400 dark:via-indigo-400 dark:to-sky-300 bg-clip-text text-transparent">
-              Zero Server Uploads.
-            </span>
+            <HeroTypewriter />
           </motion.h1>
 
           <motion.p
@@ -336,25 +335,14 @@ export default function HomePage() {
             </div>
           </motion.div>
 
-          {/* Quick Pillars */}
+          {/* 4-Feature Trust Badges Grid (100% Private, Client-Side Speed, Zero Signup & Free, PWA & Offline Ready) */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.25 }}
-            className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 dark:text-slate-400"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.25 }}
+            className="pt-6"
           >
-            <div className="flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-amber-500" />
-              <span>Instant Local Execution</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>Zero Database Storage</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <HardDrive className="w-4 h-4 text-blue-500" />
-              <span>Works Offline (PWA)</span>
-            </div>
+            <TrustBadges />
           </motion.div>
         </div>
       </section>
