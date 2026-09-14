@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Search,
@@ -105,10 +106,25 @@ const POPULAR_TOOL_IDS = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
   // Category-grouped view is the default as requested
   const [activeTab, setActiveTab] = useState<ViewMode>('grouped');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [selectedResultIndex, setSelectedResultIndex] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Close search dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Keyboard shortcut listener: Pressing '/' focuses the search bar
   useEffect(() => {
@@ -120,13 +136,14 @@ export default function HomePage() {
       ) {
         e.preventDefault();
         searchInputRef.current?.focus();
+        setIsSearchFocused(true);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Filter tools based on search query
+  // Filter tools based on search query (case-insensitive, partial matching against name, description, category, and keywords)
   const matchesSearch = React.useCallback(
     (tool: ToolItem) => {
       const q = searchQuery.toLowerCase().trim();
@@ -134,11 +151,26 @@ export default function HomePage() {
       return (
         tool.name.toLowerCase().includes(q) ||
         tool.shortDescription.toLowerCase().includes(q) ||
-        tool.keywords.some((k) => k.toLowerCase().includes(q))
+        (tool.longDescription && tool.longDescription.toLowerCase().includes(q)) ||
+        tool.category.toLowerCase().includes(q) ||
+        tool.categoryName.toLowerCase().includes(q) ||
+        (tool.keywords && tool.keywords.some((k) => k.toLowerCase().includes(q)))
       );
     },
     [searchQuery]
   );
+
+  const handleSelectTool = (slug: string) => {
+    setIsSearchFocused(false);
+    router.push(`/tools/${slug}`);
+  };
+
+  const handleSelectSuggestion = (term: string) => {
+    setSearchQuery(term);
+    setIsSearchFocused(true);
+    setSelectedResultIndex(0);
+    searchInputRef.current?.focus();
+  };
 
   // Grouped tools by category (with search applied)
   const groupedTools = useMemo(() => {
@@ -153,10 +185,26 @@ export default function HomePage() {
     });
   }, [matchesSearch]);
 
-  // Flat list of all matching tools
+  // Flat list of all matching tools (sorted by query relevance so direct title/keyword matches rank first)
   const flatMatchingTools = useMemo(() => {
-    return TOOLS_DATA.filter(matchesSearch);
-  }, [matchesSearch]);
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return TOOLS_DATA;
+
+    const getScore = (tool: ToolItem) => {
+      const name = tool.name.toLowerCase();
+      if (name === q) return 100;
+      if (name.startsWith(q)) return 80;
+      if (name.includes(q)) return 60;
+      if (tool.slug.includes(q)) return 50;
+      if (tool.keywords.some((k) => k.toLowerCase().startsWith(q))) return 40;
+      if (tool.keywords.some((k) => k.toLowerCase().includes(q))) return 30;
+      if (tool.categoryName.toLowerCase().includes(q)) return 20;
+      if (tool.shortDescription.toLowerCase().includes(q)) return 10;
+      return 1;
+    };
+
+    return TOOLS_DATA.filter(matchesSearch).sort((a, b) => getScore(b) - getScore(a));
+  }, [matchesSearch, searchQuery]);
 
   // Overall count of matching tools
   const totalMatchingCount = flatMatchingTools.length;
@@ -179,6 +227,21 @@ export default function HomePage() {
         return 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200/50 dark:border-amber-800/40';
       default:
         return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700';
+    }
+  };
+
+  const getCategoryIcon = (category: ToolCategory) => {
+    switch (category) {
+      case 'image':
+        return ImageIcon;
+      case 'developer':
+        return Code;
+      case 'text':
+        return Type;
+      case 'utility':
+        return Calculator;
+      default:
+        return Code;
     }
   };
 
@@ -287,28 +350,63 @@ export default function HomePage() {
             Executed instantly via Canvas, Web Workers, and Web Crypto.
           </motion.p>
 
-          {/* Search Input Bar with Motion Glow */}
+          {/* Search Input Bar with Interactive Results Dropdown */}
           <motion.div
+            ref={searchContainerRef}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.2 }}
-            className="max-w-2xl mx-auto relative pt-2"
+            className="max-w-2xl mx-auto relative pt-2 z-40"
           >
-            <div className="group relative flex items-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 shadow-md backdrop-blur-md transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 dark:focus-within:ring-blue-400/10">
+            <div className="group relative flex items-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 shadow-md backdrop-blur-md transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 dark:focus-within:ring-blue-400/10">
               <Search className="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 ml-4 shrink-0 transition-colors" />
               <input
                 ref={searchInputRef}
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search all 26 tools (e.g. compress image, format json, regex, base64)..."
+                onFocus={() => setIsSearchFocused(true)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setIsSearchFocused(true);
+                  setSelectedResultIndex(0);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (flatMatchingTools.length > 0) {
+                      setSelectedResultIndex((prev) => (prev + 1) % flatMatchingTools.length);
+                    }
+                  } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (flatMatchingTools.length > 0) {
+                      setSelectedResultIndex((prev) => (prev - 1 + flatMatchingTools.length) % flatMatchingTools.length);
+                    }
+                  } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (flatMatchingTools.length > 0) {
+                      const targetTool = flatMatchingTools[selectedResultIndex] || flatMatchingTools[0];
+                      if (targetTool) {
+                        handleSelectTool(targetTool.slug);
+                      }
+                    }
+                  } else if (e.key === 'Escape') {
+                    setIsSearchFocused(false);
+                    searchInputRef.current?.blur();
+                  }
+                }}
+                placeholder="Search all 26 tools (e.g. compress, json, password, favicon)..."
                 className="w-full bg-transparent px-4 py-4 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
               />
               <div className="flex items-center gap-2 mr-3 shrink-0">
                 {searchQuery ? (
                   <button
-                    onClick={() => setSearchQuery('')}
-                    className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('');
+                      searchInputRef.current?.focus();
+                      setIsSearchFocused(false);
+                    }}
+                    className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
                   >
                     Clear
                   </button>
@@ -320,14 +418,184 @@ export default function HomePage() {
               </div>
             </div>
 
+            {/* Results Dropdown Menu */}
+            <AnimatePresence>
+              {isSearchFocused && searchQuery.trim().length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6, scale: 0.99 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 4, scale: 0.99 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute top-full left-0 right-0 mt-2 z-50 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl backdrop-blur-xl overflow-hidden text-left"
+                >
+                  {flatMatchingTools.length > 0 ? (
+                    <div>
+                      {/* Dropdown Header */}
+                      <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50/90 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-800/80 text-xs">
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">
+                          Found {flatMatchingTools.length} {flatMatchingTools.length === 1 ? 'tool' : 'tools'} matching &quot;{searchQuery}&quot;
+                        </span>
+                        <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] text-slate-400">
+                          <span><kbd className="px-1 py-0.5 rounded bg-slate-200/80 dark:bg-slate-700 text-[10px] font-mono">↑</kbd><kbd className="px-1 py-0.5 rounded bg-slate-200/80 dark:bg-slate-700 text-[10px] font-mono">↓</kbd> navigate</span>
+                          <span>·</span>
+                          <span><kbd className="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-700 text-[10px] font-mono">↵</kbd> open</span>
+                          <span>·</span>
+                          <span><kbd className="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-700 text-[10px] font-mono">Esc</kbd> dismiss</span>
+                        </span>
+                      </div>
+
+                      {/* Dropdown Results List */}
+                      <div className="max-h-[380px] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/50">
+                        {flatMatchingTools.map((tool, idx) => {
+                          const isSelected = idx === selectedResultIndex;
+                          const Icon = getCategoryIcon(tool.category);
+                          return (
+                            <div
+                              key={tool.id}
+                              id={`search-result-${tool.slug}`}
+                              onClick={() => handleSelectTool(tool.slug)}
+                              onMouseEnter={() => setSelectedResultIndex(idx)}
+                              className={`flex items-center justify-between gap-3 px-4 py-3 cursor-pointer transition ${
+                                isSelected
+                                  ? 'bg-blue-50/90 dark:bg-blue-950/60 text-blue-950 dark:text-blue-100'
+                                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-800 dark:text-slate-200'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div
+                                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                                    tool.category === 'image'
+                                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300'
+                                      : tool.category === 'developer'
+                                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
+                                      : tool.category === 'text'
+                                      ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300'
+                                      : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300'
+                                  }`}
+                                >
+                                  <Icon className="w-4 h-4" />
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                                      {tool.name}
+                                    </span>
+                                    <span className="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                                      {tool.categoryName}
+                                    </span>
+                                    {tool.popular && (
+                                      <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300">
+                                        Popular
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                                    {tool.shortDescription}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span
+                                  className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition ${
+                                    isSelected
+                                      ? 'bg-blue-600 text-white shadow-xs'
+                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                                  }`}
+                                >
+                                  <span>Open</span>
+                                  <ArrowRight className="w-3 h-3" />
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Dropdown Footer */}
+                      <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50/60 dark:bg-slate-800/40 border-t border-slate-200/80 dark:border-slate-800/80 text-xs text-slate-500">
+                        <span>Showing {flatMatchingTools.length} {flatMatchingTools.length === 1 ? 'tool' : 'tools'}</span>
+                        <a
+                          href="#all-tools"
+                          onClick={() => setIsSearchFocused(false)}
+                          className="font-medium text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                        >
+                          <span>Scroll to catalog view</span>
+                          <span>↓</span>
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Fallback: No tools found message */
+                    <div className="p-6 text-center space-y-3">
+                      <div className="w-10 h-10 mx-auto rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                        <Search className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
+                          No tools found matching &quot;{searchQuery}&quot;
+                        </h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+                          We couldn&apos;t find any utility matching your query. Try searching for{' '}
+                          <button
+                            type="button"
+                            onClick={() => handleSelectSuggestion('compress')}
+                            className="text-blue-600 dark:text-blue-400 font-medium hover:underline cursor-pointer"
+                          >
+                            compress
+                          </button>
+                          ,{' '}
+                          <button
+                            type="button"
+                            onClick={() => handleSelectSuggestion('json')}
+                            className="text-blue-600 dark:text-blue-400 font-medium hover:underline cursor-pointer"
+                          >
+                            json
+                          </button>
+                          ,{' '}
+                          <button
+                            type="button"
+                            onClick={() => handleSelectSuggestion('password')}
+                            className="text-blue-600 dark:text-blue-400 font-medium hover:underline cursor-pointer"
+                          >
+                            password
+                          </button>
+                          , or{' '}
+                          <button
+                            type="button"
+                            onClick={() => handleSelectSuggestion('favicon')}
+                            className="text-blue-600 dark:text-blue-400 font-medium hover:underline cursor-pointer"
+                          >
+                            favicon
+                          </button>
+                          .
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery('');
+                          searchInputRef.current?.focus();
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
+                      >
+                        Clear search
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Quick Keyword Pills */}
             <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3 text-[11px] text-slate-500 dark:text-slate-400">
               <span className="font-medium text-slate-400">Quick suggestions:</span>
               {['Compress Image', 'JSON Formatter', 'Favicon', 'Regex', 'Password', 'Base64'].map((term) => (
                 <button
                   key={term}
-                  onClick={() => setSearchQuery(term)}
-                  className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 px-2 py-0.5 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+                  type="button"
+                  onClick={() => handleSelectSuggestion(term)}
+                  className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 px-2 py-0.5 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
                 >
                   {term}
                 </button>
